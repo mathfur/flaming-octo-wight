@@ -1,4 +1,4 @@
 file_cache_path "/tmp/chef-solo"
-cookbook_path ["~/cookbooks"]
-role_path "~/role"
+cookbook_path [File.dirname(__FILE__)]
+role_path "#{File.dirname(__FILE__)}/role"
 log_level :debug
