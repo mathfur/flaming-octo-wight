@@ -10,7 +10,6 @@ set :user, 'ec2-user'
 ssh_options[:keys] = ENV['PRIVATE_KEY']
 default_run_options[:pty]=true
 set :deploy_to, "/home/#{user}/#{application}"
-set :deploy_via, :copy
 
 File.read("#{File.dirname(__FILE__)}/domains").each_line do |line|
   role_name, domain = line.split(/\s+/)
