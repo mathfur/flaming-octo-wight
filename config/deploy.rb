@@ -1,5 +1,6 @@
 set :application, "flaming-octo-wight"
-set :repository,  "https://github.com/mathfur/#{application}"
+set :repository, ENV['FROM_LOCAL'] ? File.dirname(__FILE__) + "/.." : "https://github.com/mathfur/#{application}"
+set :branch, ENV['BRANCH'] || :master
 
 set :scm, :git
 set :scm_username, 'mathfur'
@@ -9,6 +10,7 @@ set :user, 'ec2-user'
 ssh_options[:keys] = ENV['PRIVATE_KEY']
 default_run_options[:pty]=true
 set :deploy_to, "/home/#{user}/#{application}"
+set :deploy_via, :copy
 
 File.read("#{File.dirname(__FILE__)}/domains").each_line do |line|
   role_name, domain = line.split(/\s+/)
@@ -27,11 +29,11 @@ namespace :deploy do
   task :install_by_cookbook_main do
     sudo "chef-solo -c #{release_path}/cookbooks/solo.rb -j #{release_path}/cookbooks/chef.json"
   end
+  after 'deploy:update_code', "deploy:install_by_cookbook_main"
 
   task :npm_install do
-    run 'npm install'
+    run "(cd #{release_path}; npm install)"
   end
-  after 'deploy:update_code', "deploy:install_by_cookbook_main"
   after 'deploy:update_code', "deploy:npm_install"
 
   task :start do

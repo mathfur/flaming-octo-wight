@@ -28,7 +28,7 @@ http {
             index  index.html index.htm;
         }
 
-        <%- (@params[:proxies] || []).each do |from, to| -%>
+        <%- (node[:proxies] || []).each do |from, to| -%>
         location <%= from %> {
             proxy_pass  <%= to %>;
         }

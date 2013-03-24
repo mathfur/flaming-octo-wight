@@ -16,6 +16,17 @@ directory "/home/#{user_name}/tmp" do
   action :create
 end
 
+script "Add ~/local/bin to PATH" do
+  interpreter "bash"
+  flags "-e"
+  user user_name
+  cwd "#{home_dir}/tmp"
+  code <<-EOS
+    echo "export PATH=$PATH:#{home_dir}/local/bin" >> #{home_dir}/.bashrc
+  EOS
+  not_if "ls #{home_dir}/local/bin | grep npm"
+end
+
 script "install_node_from_source" do
   interpreter "bash"
   flags "-e"
@@ -29,7 +40,7 @@ script "install_node_from_source" do
     make
     make install
   EOS
-  not_if "which node"
+  not_if "ls #{home_dir}/local/bin/node"
 end
 
 script "install_npm" do
@@ -38,27 +49,14 @@ script "install_npm" do
   user user_name
   cwd "#{home_dir}/tmp"
   code <<-EOS
-    echo "export PATH=$PATH:#{home_dir}/local/bin" >> #{home_dir}/.bashrc
     PATH=$PATH:#{home_dir}/local/bin curl https://npmjs.org/install.sh | sh
   EOS
-  not_if "which npm"
-end
-
-script "install_dependency_packages" do
-  interpreter "bash"
-  flags "-e"
-  user user_name
-  cwd application_dir
-  code <<-EOS
-    npm install
-  EOS
-  not_if "which npm"
+  not_if "ls #{home_dir}/local/bin/npm"
 end
 
 template "/etc/nginx/nginx.conf" do
   source "nginx.conf.erb"
   owner "root"
-  proxies '/nodejs' => 'http://localhost:3000/'
 
   notifies :restart, "service[nginx]"
 end
