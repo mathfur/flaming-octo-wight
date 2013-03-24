@@ -36,6 +36,6 @@ namespace :deploy do
   after 'deploy:update_code', "deploy:npm_install"
 
   task :start do
-    run "node app.js"
+    run "(cd #{current_path}; node app.js)"
   end
 end

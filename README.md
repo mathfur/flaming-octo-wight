@@ -6,3 +6,5 @@ Usage
 3. "ssh -i ~/.ssh/foo.pem ec2-user@EC2のPublicDNS" でログインできることを確認する。
 4. config/domainsに"app EC2のPublicDNS"の行を足す。
 5. PRIVATE_KEY=~/.ssh/foo.pem cap deployを実行する。
+6. PRIVATE_KEY=~/.ssh/foo.pem cap deploy:startを実行する。
+7. ブラウザからアクセスする。
