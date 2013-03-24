@@ -6,7 +6,10 @@
 var express = require('express')
   , routes = require('./routes')
   , http = require('http')
-  , path = require('path');
+  , path = require('path')
+  , scraper = require('scraper')
+  , fs = require('fs')
+  , _und = require('./lib/underscore');
 
 var app = express();
 
@@ -26,6 +29,26 @@ app.configure(function(){
 
 app.configure('development', function(){
   app.use(express.errorHandler());
+});
+
+app.get('/words', function(req, resp, next){
+  var url = req.param('url');
+  var loaded_pages = [];
+
+  fs.readFile('data/dictionary.txt', 'utf8', function(err, data){
+    var dictionary_lines = data.split("\n");
+
+    scraper(url, function(err, $){
+      if (err) {throw err;}
+      var words = $('html body').text().split(/\s+/)
+      var words_ = _und.filter(_und.uniq(words.sort()), function(s){ return s.match(/^[a-z]+$/) });
+      var send_lines = _und.map(words_, function(word){
+        return _und.find(dictionary_lines, function(line){ return line.match("^"+word+" ") })
+      })
+
+      resp.send(_und.compact(send_lines).join("\n"));
+    })
+  })
 });
 
 app.get('/', routes.index);
